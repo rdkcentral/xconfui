@@ -133,7 +133,7 @@
             _.each(['rule::created', 'rule::updated'], function(eventType) {
                 $scope.$on(eventType, function(e, obj) {
                     vm.firmwareConfigs = ruleHelperService.buildFirmwareConfigsBySupportedModels(obj.data, vm.allFirmwareConfigs);
-                    reloadConfigId();
+                    reloadConfigId(vm.ruleAction.data.configId);
                     vm.representation.firmwareVersion = [];
                     _.each(vm.firmwareConfigs, function(firmwareConfig) {vm.representation.firmwareVersion.push(firmwareConfig.firmwareVersion)});
 
@@ -382,7 +382,7 @@
             vm.data.rule = watchResult.rule;
             vm.isValidCondition = watchResult.isValidCondition;
             vm.firmwareConfigs = ruleHelperService.buildFirmwareConfigsBySupportedModels(vm.data.rule, vm.allFirmwareConfigs);
-            reloadConfigId();
+            reloadConfigId(vm.ruleAction.data.configId);
             vm.representation.firmwareVersion = [];
             _.each(vm.firmwareConfigs, function(firmwareConfig) {vm.representation.firmwareVersion.push(firmwareConfig.firmwareVersion)});
         });
