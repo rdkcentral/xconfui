@@ -98,9 +98,13 @@ func RouteAdminUIApi(mux *http.ServeMux, ProxyRequestHandler func(http.ResponseW
 }
 
 func RouteStaticResources(mux *http.ServeMux, webRoot string) {
-	appDir := fmt.Sprintf("%s/app", webRoot)
-	fsApp := http.FileServer(http.Dir(appDir))
-	mux.Handle("/app/", http.StripPrefix("/app/", fsApp))
+	appSharedDir := fmt.Sprintf("%s/app/shared", webRoot)
+	fsAppShared := http.FileServer(http.Dir(appSharedDir))
+	mux.Handle("/app/shared/", http.StripPrefix("/app/shared/", fsAppShared))
+
+	appXConfDir := fmt.Sprintf("%s/app/xconf", webRoot)
+	fsAppXConf := http.FileServer(http.Dir(appXConfDir))
+	mux.Handle("/app/xconf/", http.StripPrefix("/app/xconf/", fsAppXConf))
 
 	imgDir := fmt.Sprintf("%s/img", webRoot)
 	fsImg := http.FileServer(http.Dir(imgDir))
