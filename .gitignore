@@ -20,6 +20,3 @@ node_modules/
 
 __debug_bin
 package-lock.json
-
-#Ignore Compiled
-app/compiled/
