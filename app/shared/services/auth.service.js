@@ -25,11 +25,16 @@
     function service($rootScope, $cookies, utilsService, PERMISSION, $http) {
         const API_URL = 'auth/info';
         return {
-            getAuthInfo: getAuthInfo
+            getAuthInfo: getAuthInfo,
+            getApplicationTypes: getApplicationTypes
         };
 
        async function getAuthInfo() {
            return $http.get(API_URL);
         };
+
+        function getApplicationTypes() {
+            return $http.get('/applicationtype/all');
+        }
     }
 })();

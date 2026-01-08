@@ -124,7 +124,10 @@
                 }
             }
 
-            return availableTypes.indexOf('*') > -1 ? APPLICATION_TYPES : availableTypes;
+            var allTypes = $rootScope.APPLICATION_TYPES && $rootScope.APPLICATION_TYPES.length > 0 
+                ? $rootScope.APPLICATION_TYPES : APPLICATION_TYPES;
+            
+            return availableTypes.indexOf('*') > -1 ? allTypes : availableTypes;
         }
 
         function endsWithApplicationType(permission) {

@@ -36,6 +36,7 @@
 
                 restoreApplicationType();
                 setAdminUrlCookie();
+                fetchApplicationTypes();
 
                 function setAdminUrlCookie() {
                     $cookies.put('admin-ui-location', $window.location.origin);
@@ -49,6 +50,19 @@
                     }
                 }
 
+                // Fetching dynamic application types
+                function fetchApplicationTypes() {
+                    authService.getApplicationTypes().then(function (resp) {
+                        if (resp.data && resp.data.length > 0) {
+                            var appTypes = resp.data.map(function(appType) { return appType.name; });
+                            $rootScope.APPLICATION_TYPES = appTypes;
+                            $rootScope.availableApplicationTypes = appTypes;
+                        }
+                    }, function (error) {
+                        alertsService.showError({ title: 'Error', message: error.data.message });
+                    });
+                }
+                
                 authorizationService.getAuthProvider().then(function (resp) {
                     $rootScope.authProvider = resp.data.name;
                 }, function (error) {
