@@ -35,8 +35,8 @@ func RouteAdminUIApi(mux *http.ServeMux, ProxyRequestHandler func(http.ResponseW
 	mux.HandleFunc("/environment/", ProxyRequestHandler)
 	mux.HandleFunc("/environment", ProxyRequestHandler)
 
-	mux.HandleFunc("/applicationtype/", ProxyRequestHandler)
-	mux.HandleFunc("/applicationtype", ProxyRequestHandler)
+	mux.HandleFunc("/application-types/", ProxyRequestHandler)
+	mux.HandleFunc("/application-types", ProxyRequestHandler)
 
 	mux.HandleFunc("/model/", ProxyRequestHandler)
 	mux.HandleFunc("/model", ProxyRequestHandler)
