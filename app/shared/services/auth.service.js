@@ -34,7 +34,7 @@
         };
 
         function getApplicationTypes() {
-            return $http.get('/application-types/all');
+            return $http.get('/application-types');
         }
     }
 })();
