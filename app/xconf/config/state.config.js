@@ -1,3 +1,5 @@
+const { log } = require("grunt");
+
 /**
  * Copyright 2024 Comcast Cable Communications Management, LLC
  *
@@ -36,6 +38,7 @@
 
                 restoreApplicationType();
                 setAdminUrlCookie();
+                fetchApplicationTypes();
 
                 function setAdminUrlCookie() {
                     $cookies.put('admin-ui-location', $window.location.origin);
@@ -49,6 +52,22 @@
                     }
                 }
 
+                // Fetching dynamic application types
+                function fetchApplicationTypes() {
+                    authService.getApplicationTypes().then(function (resp) {
+                        if (resp.data && resp.data.length > 0) {
+                            var appTypes = resp.data.map(function(appType) { return appType.name; });
+                            $rootScope.APPLICATION_TYPES = appTypes;
+                            $rootScope.availableApplicationTypes = appTypes;
+                        }else{
+                            log.warn('Received empty application types list from server; continuing to use default APPLICATION_TYPES.');
+                        }
+                    }, function (error) {
+                       var errorMessage = (error.data && error.data.message) || 'Failed to fetch application types';
+                        alertsService.showError({ title: 'Error', message: errorMessage });
+                    });
+                }
+                
                 authorizationService.getAuthProvider().then(function (resp) {
                     $rootScope.authProvider = resp.data.name;
                 }, function (error) {
