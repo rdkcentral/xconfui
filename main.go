@@ -81,7 +81,17 @@ func main() {
 	app.RouteUiFiles(mux)
 
 	port := sc.GetString("xconfadminui.server.port")
-	log.Fatal(http.ListenAndServe(port, mux))
+	httpsEnabled := sc.GetBoolean("xconfadminui.server.https_enabled", false)
+	certFile := sc.GetString("xconfadminui.server.cert_file", "")
+	keyFile := sc.GetString("xconfadminui.server.key_file", "")
+	
+	if httpsEnabled && certFile != "" && keyFile != "" {
+		log.Info(fmt.Sprintf("Starting HTTPS server on port %s", port))
+		log.Fatal(http.ListenAndServeTLS(port, certFile, keyFile, mux))
+	} else {
+		log.Info(fmt.Sprintf("Starting HTTP server on port %s", port))
+		log.Fatal(http.ListenAndServe(port, mux))
+	}
 }
 
 func Index(w http.ResponseWriter, r *http.Request) {
