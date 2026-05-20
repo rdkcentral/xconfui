@@ -1339,6 +1339,16 @@ angular
                 $rootScope.signOut = signOut;
                 $rootScope.isAuthorized = authUtilsService.isAuthorized;
 
+                var authExpiredInProgress = false;
+
+                var originalShowError = alertsService.showError;
+                alertsService.showError = function () {
+                    if (authExpiredInProgress) {
+                        return; // suppress popup storm during session-expired flow
+                    }
+                    return originalShowError.apply(alertsService, arguments);
+                };
+
                 restoreApplicationType();
                 setAdminUrlCookie();
 
@@ -1347,10 +1357,16 @@ angular
                 }
         
                 async function setAuthInfoIfAuthorized() {
-                    if ($cookies.get('token')) {
+                    if (!$cookies.get('token')) {
+                        return null;
+                    }
+                    try {
                         let userInfoResp = await authService.getAuthInfo();
                         $rootScope.currentUser = userInfoResp.data;
+                        authExpiredInProgress = false;
                         return userInfoResp.data;
+                    } catch (e) {
+                        return null;
                     }
                 }
 
@@ -1386,12 +1402,27 @@ angular
 
                 $rootScope.$on(AUTH_EVENT.UNAUTHORIZED, function (event, message) {
                     event.preventDefault();
-                    delete $cookies.get('token');
-                    dialogsService.showConfirmAsSingleton('Session expired', "Your session has expired. Would you like to log in again?", null, function () {
-                        $localStorage['xconfCurrentHash'] = $window.location.hash;
-                        $state.go('authorization');
-                        /* provide loginForm*/
-                    });
+                    // Dedup: handle session expiration only once per wave
+                    if (authExpiredInProgress) {
+                        return;
+                    }
+                    authExpiredInProgress = true;
+
+                    // Actually clear the token cookie
+                    $cookies.remove('token');
+
+                    dialogsService.showConfirmAsSingleton(
+                        'Session expired',
+                        "Your session has expired. Would you like to log in again?",
+                        null,
+                        function () {
+                            $localStorage['xconfCurrentHash'] = $window.location.hash;
+
+                            // Force a clean transition to authorization.
+                            // reload:true helps avoid half-initialized state/resolves.
+                            $state.go('authorization', {}, { reload: true });
+                        }
+                    );
                 });
 
                 $rootScope.$on(AUTH_EVENT.NO_ACCESS, function (event, message) {
@@ -1410,6 +1441,16 @@ angular
 
                         var permissions = next.data.permissions;
                         var user = await setAuthInfoIfAuthorized();
+
+                        // If we couldn't load user info (missing/invalid token), treat as unauthorized.
+                        // This prevents user.permissions dereferences from throwing and causing loops.
+                        if (!user || !Array.isArray(user.permissions)) {
+                            if ($state.current.name !== 'authorization') {
+                                event.preventDefault();
+                                $rootScope.$broadcast(AUTH_EVENT.UNAUTHORIZED);
+                            }
+                            return;
+                        }
 
                         var applicationTypes = authUtilsService.getAvailableApplicationTypes(user.permissions);
                         $rootScope.availableApplicationTypes = applicationTypes;
