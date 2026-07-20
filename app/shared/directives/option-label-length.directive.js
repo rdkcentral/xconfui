@@ -31,8 +31,7 @@
                         var currentOption = $(this);
                         var optionLabel = currentOption.text().trim();
                         if (optionLabel && optionLabel.length > charsToDisplay) {
-                            optionLabel = optionLabel.substring(0, charsToDisplay) + '...';
-                            $(this).html(optionLabel);
+                            currentOption.text(optionLabel.substring(0, charsToDisplay) + '...');
                         }
                     })
                 });
