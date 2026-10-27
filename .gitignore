@@ -23,3 +23,6 @@ package-lock.json
 
 app/compiled/vendor.css
 app/compiled/vendor.js
+app/compiled/remixicon.ttf
+app/compiled/remixicon.woff
+app/compiled/remixicon.woff2
